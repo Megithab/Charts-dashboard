@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Map information</title>
+  <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+  <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #container {
+      width: 100%;
+      max-width: 800px;
+      height: 600px;
+      margin-bottom: 2rem;
+    }
+
+    .inputs {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .inputs input {
+      width: 100px;
+      padding: 5px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      margin: 0.5rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="container"></div>
+
+  <div class="inputs">
+    <input id="et-be" type="number" placeholder="Benishangul" />
+    <input id="et-2837" type="number" placeholder="Dire Dawa" />
+    <input id="et-ha" type="number" placeholder="Harari" />
+    <input id="et-sn" type="number" placeholder="SNNPR" />
+    <input id="et-ga" type="number" placeholder="Gambela" />
+    <input id="et-aa" type="number" placeholder="Addis Ababa" />
+    <input id="et-so" type="number" placeholder="Somali" />
+    <input id="et-dd" type="number" placeholder="Dire Dawa" />
+    <input id="et-ti" type="number" placeholder="Tigray" />
+    <input id="et-af" type="number" placeholder="Afar" />
+    <input id="et-am" type="number" placeholder="Amhara" />
+  </div>
+
+  <button onclick="updateMapData()">Update Map</button>
+  <button onclick="randomizeData()">Randomize Data</button>
+
+  <script>
+    let chart;
+    const regionIds = [
+      'et-be', 'et-2837', 'et-ha', 'et-sn', 'et-ga',
+      'et-aa', 'et-so', 'et-dd', 'et-ti', 'et-af', 'et-am'
+    ];
+
+    (async () => {
+      const topology = await fetch(
+        'https://code.highcharts.com/mapdata/countries/et/et-all.topo.json'
+      ).then(response => response.json());
+
+      const initialData = regionIds.map((id, i) => [id, 10 + i]);
+
+      chart = Highcharts.mapChart('container', {
+        chart: {
+          map: topology
+        },
+        title: {
+          text: 'Ethiopia - Interactive Map with Update'
+        },
+        subtitle: {
+          text: 'Use input fields or buttons to change map data'
+        },
+        mapNavigation: {
+          enabled: true,
+          buttonOptions: {
+            verticalAlign: 'bottom'
+          }
+        },
+        colorAxis: {
+          min: 0
+        },
+        series: [{
+          data: initialData,
+          name: 'Region Values',
+          states: {
+            hover: {
+              color: '#BADA55'
+            }
+          },
+          dataLabels: {
+            enabled: true,
+            format: '{point.name}'
+          }
+        }]
+      });
+    })();
+
+    function updateMapData() {
+      const updatedData = regionIds.map(id => [
+        id,
+        parseFloat(document.getElementById(id).value) || 0
+      ]);
+      chart.series[0].setData(updatedData);
+    }
+
+    function randomizeData() {
+      const randomData = regionIds.map(id => {
+        const value = Math.floor(Math.random() * 100);
+        document.getElementById(id).value = value;
+        return [id, value];
+      });
+      chart.series[0].setData(randomData);
+    }
+  </script>
+
+</body>
+
+</html>
